@@ -5,15 +5,15 @@
 ;(function(factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD
-        define(['underscore', 'backbone'], factory);
+        define(['underscore', 'backbone', 'lodash/objects/cloneDeep', 'lodash/objects/merge'], factory);
     } else if (typeof exports === 'object') {
         // CommonJS
         module.exports = factory(require('underscore'), require('backbone'));
     } else {
         // globals
-        factory(_, Backbone);
+        factory(_, Backbone, lodash.cloneDeep, lodash.merge);
     }
-}(function(_, Backbone) {
+}(function(_, Backbone, cloneDeep, merge) {
 
     /**
      * Takes a nested object and returns a shallow object keyed with the path names
@@ -134,8 +134,8 @@
             if (options && options.parse) attrs = this.parse(attrs, options) || {};
             if (defaults = _.result(this, 'defaults')) {
                 //<custom code>
-                // Replaced the call to _.defaults with _.deepExtend.
-                attrs = _.deepExtend({}, defaults, attrs);
+                // Replaced the call to _.defaults with merge.
+                attrs = merge({}, defaults, attrs);
                 //</custom code>
             }
             this.set(attrs, options);
@@ -145,7 +145,7 @@
 
         // Return a copy of the model's `attributes` object.
         toJSON: function(options) {
-          return _.deepClone(this.attributes);
+          return cloneDeep(this.attributes);
         },
 
         // Override get
@@ -181,7 +181,7 @@
             this._changing  = true;
 
             if (!changing) {
-              this._previousAttributes = _.deepClone(this.attributes); //<custom>: Replaced _.clone with _.deepClone
+              this._previousAttributes = cloneDeep(this.attributes); //<custom>: Replaced _.clone with cloneDeep
               this.changed = {};
             }
             current = this.attributes, prev = this._previousAttributes;
@@ -315,7 +315,7 @@
         // `"change"` event.
         previousAttributes: function() {
           //<custom code>
-          return _.deepClone(this._previousAttributes);
+          return cloneDeep(this._previousAttributes);
           //</custom code>
         }
     });
